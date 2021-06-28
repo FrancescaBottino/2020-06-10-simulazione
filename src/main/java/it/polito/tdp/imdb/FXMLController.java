@@ -5,8 +5,10 @@
 package it.polito.tdp.imdb;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
+import it.polito.tdp.imdb.model.Actor;
 import it.polito.tdp.imdb.model.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -38,7 +40,7 @@ public class FXMLController {
     private ComboBox<String> boxGenere; // Value injected by FXMLLoader
 
     @FXML // fx:id="boxAttore"
-    private ComboBox<?> boxAttore; // Value injected by FXMLLoader
+    private ComboBox<Actor> boxAttore; // Value injected by FXMLLoader
 
     @FXML // fx:id="txtGiorni"
     private TextField txtGiorni; // Value injected by FXMLLoader
@@ -48,11 +50,37 @@ public class FXMLController {
 
     @FXML
     void doAttoriSimili(ActionEvent event) {
+    	
+    	txtResult.clear();
+    	
+    	Actor a = boxAttore.getValue();
+    	
+    	if(a == null) {
+    		txtResult.appendText("Devi inserire un attore");
+    		return;
+    	}
+    	
+    	List<Actor> attori = model.cercaSimili(a);
+    	
+    	if(attori.size() == 0) {
+    		txtResult.appendText("Non ci sono attori simili");
+    		return;
+    	}
+    	
+    	txtResult.appendText("\nAttori simili: \n");
+    	
+    	for(Actor aa: attori) {
+    		txtResult.appendText("Attore: "+aa+"\n");
+    	}
 
     }
 
     @FXML
     void doCreaGrafo(ActionEvent event) {
+    	
+    	txtResult.clear();
+    	
+    	boxAttore.getItems().clear();
     	
     	String genere = boxGenere.getValue();
     	
@@ -62,12 +90,37 @@ public class FXMLController {
     	txtResult.appendText("Numero vertici: "+model.getNVertici()+"\n");
     	txtResult.appendText("Numero archi: "+model.getNArchi()+"\n");
     	
+    	boxAttore.getItems().addAll(model.getAttori());
     	
 
     }
 
     @FXML
     void doSimulazione(ActionEvent event) {
+    	
+    	txtResult.clear();
+    	
+    	int giorni;
+    	
+    	try {
+    		
+    		giorni = Integer.parseInt(txtGiorni.getText());
+    		
+    		
+    	}catch(NumberFormatException e) {
+    		
+    		txtResult.appendText("Devi inserire un numero intero");
+    		return;
+    	}
+    	
+    	
+    	model.init(giorni);
+    	model.run();
+    	
+    	txtResult.appendText("Numero di giorni: "+model.getNPausa());
+    	txtResult.appendText("\nLista attori: "+model.getAttoriIntervistati());
+    	
+    	
 
     }
 
